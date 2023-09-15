@@ -1,5 +1,3 @@
-# Robowin
-Robowin (ROBOCODE Anhanguera)
 package roboWin; 
 
 import robocode.*;
