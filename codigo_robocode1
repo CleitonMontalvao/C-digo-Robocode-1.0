@@ -1,0 +1,69 @@
+# Robowin
+Robowin (ROBOCODE Anhanguera)
+package roboWin; 
+
+import robocode.*;
+
+public class robowin extends Robot {
+
+    // Flag para controlar a direção do movimento após bater na parede
+    private boolean bateuNaParede = false;
+
+    // Método principal do robô
+    public void run() {
+        while (true) {
+            // Movimento em loop
+            if (!bateuNaParede) {
+                andarParaFrente();
+                virarParaEsquerda();
+            } else {
+                andarParaTras(); // Andar para trás em vez de virar para a direita
+            }
+        }
+    }
+
+    // Método para mover o robô para frente
+    private void andarParaFrente() {
+        ahead(100);
+    }
+
+    // Método para mover o robô para trás
+    private void andarParaTras() {
+        back(100);
+    }
+
+    // Método para virar o robô para a esquerda
+    private void virarParaEsquerda() {
+        turnLeft(30);
+    }
+
+    // Quando o robô bater na parede, esse método será chamado automaticamente
+    public void onHitWall(HitWallEvent e) {
+        // Virar o robô para a esquerda (direção oposta)
+        turnLeft(180);
+        bateuNaParede = true; // Defina a flag para true ao bater na parede
+    }
+
+    // Quando o robô detectar um inimigo, esse método será chamado automaticamente
+    public void onScannedRobot(ScannedRobotEvent e) {
+        // Mover para frente e atirar
+        andarParaFrente();
+        fire(1); // Ajuste o poder do tiro conforme necessário
+        andarParaEsquerdaAposAtirar();
+    }
+
+    // Método para mover o robô 50 unidades para a esquerda
+    private void andarParaEsquerdaAposAtirar() {
+        turnLeft(90); // Gire 90 graus para a esquerda (direção oposta)
+        ahead(50); // Ande 50 unidades para a esquerda
+    }
+
+    // Quando o robô colidir com outro robô, esse método será chamado automaticamente
+    public void onHitRobot(HitRobotEvent e) {
+        // Faça uma verificação para determinar se o robô está preso entre duas paredes
+        if (bateuNaParede) {
+            // Gire o robô para a direita para tentar sair da situação
+            turnRight(90);
+        }
+    }
+}
