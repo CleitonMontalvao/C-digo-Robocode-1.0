@@ -1,95 +1,68 @@
-package roboWin;
+# Robowin
+package roboWin; 
+
 import robocode.*;
-import java.awt.Color;
 
 public class robowin extends Robot {
-  // Flag para controlar a direção do movimento após bater na parede
+
+    // Flag para controlar a direção do movimento após bater na parede
     private boolean bateuNaParede = false;
 
     // Método principal do robô
-   public void run() {
-    setColors(Color.blue, Color.red, Color.green); // Cor do corpo, canhão, radar
-    while (true) {
-        // Andar em círculos
-        andarEmCirculos();
-
-        // Gire aleatoriamente para evitar ser um alvo fácil
-        double anguloAleatorio = Math.random() * 45; // Gere um ângulo aleatório entre 0 e 45 graus
-        turnLeft(anguloAleatorio);
-
-        // Execute uma varredura de radar para detectar inimigos
-        turnRadarRight(360);
+    public void run() {
+        while (true) {
+            // Movimento em loop
+            if (!bateuNaParede) {
+                andarParaFrente();
+                virarParaEsquerda();
+            } else {
+                andarParaTras(); // Andar para trás em vez de virar para a direita
+            }
+        }
     }
-}
-
-// Método para andar em círculos
-private void andarEmCirculos() {
-    ahead(100); // Andar para a frente
-    turnRight(10); // Gire 10 graus para a direita (ajuste conforme necessário)
-}
 
     // Método para mover o robô para frente
-    //private void andarParaFrente() {
-        //ahead(100);
-    //}
+    private void andarParaFrente() {
+        ahead(100);
+    }
 
     // Método para mover o robô para trás
-   // private void andarParaTras() {
-        //back(100);
-   // }
+    private void andarParaTras() {
+        back(100);
+    }
 
     // Método para virar o robô para a esquerda
-   // private void virarParaEsquerda() {
-        //turnLeft(30);
-    //}
+    private void virarParaEsquerda() {
+        turnLeft(30);
+    }
 
-   // Quando o robô bater na parede, esse método será chamado automaticamente
-	public void onHitWall(HitWallEvent e) {
-   	 // Inverta a direção do movimento
-   		 if (bateuNaParede) {
-        	turnRight(90); // Gire o robô para a direita após colidir com a parede
-   		 } else {
-        	turnLeft(90); // Gire o robô para a esquerda após colidir com a parede
-   		 }
-    
-    	bateuNaParede = !bateuNaParede; // Inverta o valor da flag
-	}
+    // Quando o robô bater na parede, esse método será chamado automaticamente
+    public void onHitWall(HitWallEvent e) {
+        // Virar o robô para a esquerda (direção oposta)
+        turnLeft(180);
+        bateuNaParede = true; // Defina a flag para true ao bater na parede
+    }
 
     // Quando o robô detectar um inimigo, esse método será chamado automaticamente
     public void onScannedRobot(ScannedRobotEvent e) {
-        // calcular a direção para o robô inimigo
-        double bearing = e.getBearing();
-        
-		// se o robô estiver na direita, vire para a direita caso contrario virar para a esquerda
-        if (bearing > 0) {
-			turnRight(bearing);
-		} else {
-			turnLeft(-bearing);
-		}
-		
-		// mover para frente e atirar
-		ahead (100); //caso necessario pode ajustar a distancia para seguir o inimigo
-		fire(3); // pode ajustar o poder do tiro se necessario
+        // Mover para frente e atirar
+        andarParaFrente();
+        fire(1); // Ajuste o poder do tiro conforme necessário
+        andarParaEsquerdaAposAtirar();
     }
 
     // Método para mover o robô 50 unidades para a esquerda
-   	 private void andarParaEsquerdaAposAtirar() {
+    private void andarParaEsquerdaAposAtirar() {
         turnLeft(90); // Gire 90 graus para a esquerda (direção oposta)
         ahead(50); // Ande 50 unidades para a esquerda
     }
 
     // Quando o robô colidir com outro robô, esse método será chamado automaticamente
-	public void onHitRobot(HitRobotEvent e) {
-    // Verifique a energia do inimigo
-   		 if (e.getEnergy() > 16) {
-       		 // Se a energia do inimigo for maior que 16, recue para trás
-        	back(100);
-    } 	else {
-       		 // Se a energia do inimigo for menor ou igual a 16, atire nele
-        fire(2); // pode ajustar o poder do tiro
-    	}
-    
-    		// Após a colisão com o outro robô, siga em frente novamente
-    		ahead(100);
-		}
+    public void onHitRobot(HitRobotEvent e) {
+        // Faça uma verificação para determinar se o robô está preso entre duas paredes
+        if (bateuNaParede) {
+            // Gire o robô para a direita para tentar sair da situação
+            turnRight(90);
+        }
+    }
 }
